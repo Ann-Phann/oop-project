@@ -7,7 +7,6 @@
 #include <vector>
 #include <memory>
 
-#include "GameObject.h"
 #include "Ball.h"
 #include "Block.h"
 
@@ -21,7 +20,7 @@
 #endif
 
 
-class Cannon : public GameObject, public sf::Drawable, public sf::Transformable {
+class Cannon : public sf::Drawable, public sf::Transformable {
     private:
         std::vector<sf::Drawable*> cannonParts;
         sf::CircleShape base;

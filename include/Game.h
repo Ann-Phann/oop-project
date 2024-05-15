@@ -6,7 +6,6 @@
 #include "Ball.h"
 #include "Block.h"
 #include "NormalBlock.h"
-#include "GameLevel.h"
 
 
 #include <SFML/Graphics.hpp>
@@ -38,7 +37,6 @@ private:
     sf::RectangleShape limitLine;
 
     //instance of class Game Level
-    GameLevel gamelevel;
 
     //game objects
     Cannon cannon;
