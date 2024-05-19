@@ -2,76 +2,61 @@
 #define CANNON_H
 
 #include <iostream>
-
+#include <SFML/Graphics.hpp>
 #include <math.h>
 #include <vector>
 #include <memory>
 
+#include "GameObject.h"
 #include "Ball.h"
-#include "Block.h"
 
-#include <SFML/Graphics.hpp>
-#include <SFML/System.hpp>
-#include <SFML/Window.hpp>
-#include <SFML/Audio.hpp>
+class Cannon : public GameObject {
+private:
+    sf::CircleShape base;
+    sf::RectangleShape gun;
+    sf::Vector2f gunPosition;
+    sf::Vertex aimLine[2];
+    sf::Vertex reflectionAimLine[2];
 
-#ifndef M_PI
-#define M_PI 3.14159265358979323846  // Define the pi constant
-#endif
+    //shooting variables
+    int ammo;
+    sf::Time fireInterval;
+    sf::Time timeSinceLastShot;
+    //check if the mouse is pressed
+    bool isPressed;
+
+    //stop moving gun when firing
+    bool canRotateGun;
+
+    //std::vector<Ball> balls;
+    std::vector<std::shared_ptr<Ball>> balls;
 
 
-class Cannon : public sf::Drawable, public sf::Transformable {
-    private:
-        std::vector<sf::Drawable*> cannonParts;
-        sf::CircleShape base;
-        sf::RectangleShape gun;
-        sf::Vector2f gunPosition;
-        sf::Vertex aimLine[2];
-        sf::Vertex reflectionAimLine[2];
 
-        //Balls to be shot
-        int numberBall;
-        std::vector<std::shared_ptr<Ball>> balls;
-        int ammo; // Current ammunition count
-        bool isFiring; // Flag to check if currently firing
-        sf::Clock fireTimer; // Timer to control the interval between shots
-       
-        //check if the mouse is pressed
-        bool isPressed;
 
-        //block
-        std::vector<Block> blocks;
-        
-        //private functions
-        void initializeVariables();
-        void initializeCannon();
+    //private functions
+    void initializeVariables();
+    void initializeCannon();
+
+public:
+
+    Cannon();
+
+     //motion functions
+    void updateGunRotation(sf::RenderWindow& window);
+    void updateAimLine(sf::RenderWindow& window);
+    sf::Vector2f calculateGunTipPosition();  // Calculates the firing position at the cannon's tip
+    sf::Vector2f calculateFiringVelocity();  // Calculates the velocity of a fired ball based on the gun's orientation
+
+    void update(sf::RenderWindow &window) override;
+    void render(sf::RenderTarget& target) const override;
     
-    public:
-        //constructor and destructor
-        Cannon();
-        virtual ~Cannon();
+    void shoot();
+    void handleInput();
+    void updateShooting(sf::Time deltaTime);
+    void reload(int currentLevel);
 
-        //shot the ball
-        void fireCannon();
+    friend class GameLevel;
+};
 
-        //update and draw
-        void update(sf::Time dt, sf::RenderWindow& window);
-        void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
-
-        //motion functions
-        void updateGunRotation(sf::RenderWindow& window);
-        void updateAimLine(sf::RenderWindow& window);
-
-        sf::Vector2f calculateGunTipPosition();  // Calculates the firing position at the cannon's tip
-        sf::Vector2f calculateFiringVelocity();  // Calculates the velocity of a fired ball based on the gun's orientation
-
-        //manage and access balls
-        //update all balls that have been fired, ensuring their motion is processed each frame.
-        void updateBall(sf::Time dt, sf::RenderWindow& window);
-        void ballsHitBlock(Block&);
-
-        //get number of ball
-        int getNumberBall() const;
-};   
-
-#endif
+#endif // CANNON_H

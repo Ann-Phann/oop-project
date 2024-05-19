@@ -7,7 +7,7 @@ void Cannon::initializeVariables()
 {
     isPressed = false;
     canRotateGun = true;
-    ammo = 21;
+    ammo = 11;
     fireInterval = sf::seconds(0.3f); // Time between shots
     timeSinceLastShot = sf::Time::Zero; // Time since the last shot was fired
 }
@@ -161,7 +161,7 @@ sf::Vector2f Cannon::calculateGunTipPosition()
 sf::Vector2f Cannon::calculateFiringVelocity()
 {
     float angleRad = (gun.getRotation()) * (PI / 180.0f); // Assuming right is 0 degrees
-    float speed = 400.0f;                                   // Speed of the ball
+    float speed = 300.0f;                                   // Speed of the ball
     return sf::Vector2f(cos(angleRad) * speed, sin(angleRad) * speed);
 }
 

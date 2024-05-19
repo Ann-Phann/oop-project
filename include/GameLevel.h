@@ -1,41 +1,37 @@
-// #ifndef GAMELEVEL_H
-// #define GAMELEVEL_H
+#ifndef GAMELEVEL_H
+#define GAMELEVEL_H
 
-// #include <math.h>
-// #include <vector>
-// #include <iostream>
-// #include <memory>
+#include <iostream>
+#include <vector>
+#include "GameObject.h"
+#include "Cannon.h"
+#include "Block.h"
+#include "Ball.h"
+#include "Scoreboard.h"
 
-// #include "Ball.h"
-// #include "Cannon.h"
-// #include "Block.h"
+class GameLevel : public GameObject {
+private:
+    int currentLevel;
 
-// #include <SFML/Graphics.hpp>
-// #include <SFML/System.hpp>
-// #include <SFML/Window.hpp>
-// #include <SFML/Audio.hpp>
+    Cannon cannon;
+    sf::Clock clock;
+    std::vector<Block> blocks;
+    //Block block;
+    std::vector<Ball> balls;
+    Scoreboard scoreboard;
 
-// class GameLevel 
-// {
-// private:
+public:
+    GameLevel();
 
-//     //game objects
-//     Cannon* cannon;
-//     std::vector<std::vector<Block*>>blocks;
-//     std::vector<Ball*> balls;
+    //generate blocks for the current level
+    void generateBlocks();
 
-//     //private member data
-//     int levelNumber;
-//     bool isLevelCompleted;
-//     void initializeGameLevel();
+    void update(sf::RenderWindow &window) override;
+    void render(sf::RenderTarget& target) const override;
+    void shootCannon();
+    void reflectBall(Ball& ball);
 
-// public:
-//     //constructor and destructor
-//     GameLevel();
-//     ~GameLevel();
+    int getCurrentLevel() const;
+};
 
-//     void loadNewLevel(int level);
-//     void update();
-    
-// };
-// #endif
+#endif // GAMELEVEL_H

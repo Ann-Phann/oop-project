@@ -1,89 +1,36 @@
 #include "../include/Block.h"
 
-Block::Block()
-{
-    // this->strength = 1;
-    this->initializeBlock();
-}
+// Declare a static sf::Font object
+static sf::Font blockFont;
 
-
-
-Block ::~Block()
-{}
-
-int Block::getStrength() {
-    return strength;
-}
-
-bool Block:: getIsDestroyed() const
-{
-    return isDestroyed;
-}
-
-void Block::initializeBlock()
-{
-    size = sf::Vector2f(210.f,150.f);
-    block.setSize(sf::Vector2f(210.f,150.f)); 
+Block::Block(float x, float y, float width, float height, int strength) : blockStrength(strength) {
+    block.setPosition(x, y);
+    block.setSize(sf::Vector2f(width, height));
+    block.setFillColor(sf::Color::Green);
     block.setOutlineThickness(5.f);
-    // if colour = white 
-    block.setOutlineColor(sf::Color::White);
-    // else 
-    //green
-    block.setPosition(400.f, 500.f);
-    
-}
+    block.setOutlineColor(sf::Color(250, 150, 100));
+    isDestroyed = false;
+    blockStrength = strength;
 
-// void Block::initializeBlockWithPos(int top, int left){
-//     size = sf::Vector2f(210.f,150.f);
-//     block.setSize(sf::Vector2f(210.f,150.f)); 
-//     block.setOutlineThickness(5.f);
-//     // if colour = white 
-//     block.setOutlineColor(sf::Color::White);
-//     // else 
-//     //green
-//     block.setPosition((float)top, (float)left);
-// }
-
-
-// void Block:: update(const sf::Time& dt, Ball& ball)
-// {
-//    this->hitBall(ball);
-// }
-
-void Block:: update(Ball& ball)
-{
-   this->hitBall(ball);
-
-}
-
-
-void Block:: hitBall(Ball& ball)
-{
-    // sf::FloatRect thisBound = sf::FloatRect(this->getPosition(), this->size);
-    // sf::FloatRect ballBound = sf::FloatRect(ball.getPosition(), sf::Vector2f(ball.radius, ball.radius));
-
-    sf::FloatRect thisBound = block.getGlobalBounds();
-    sf::FloatRect ballBound = ball.getCircle().getGlobalBounds();
-    if (thisBound.intersects(ballBound)) {
-        strength--;  
-        reflectBall(ball); 
-
-        if(this->strength <= 0)
-        {
-            isDestroyed = true;
-            std::cout << "Destroyed" << std::endl;
-            
-        }
+    std::cout << "Loading font for block..." << std::endl;
+    if (!blockFont.loadFromFile("assets/fonts/Roboto-Black.ttf"))
+    {
+        std::cout << "Failed to load background image!" << std::endl;
+    } else {
+        std::cout << "Font loaded successfully!" << std::endl;
+        blockText.setFont(blockFont);
+        blockText.setCharacterSize(20.f);
+        blockText.setFillColor(sf::Color::Red);
+        blockText.setString(std::to_string(blockStrength));
+        sf::FloatRect textRect = blockText.getLocalBounds();
+        blockText.setOrigin(textRect.left + textRect.width/2.0f, textRect.top + textRect.height/2.0f);
+        blockText.setPosition(block.getPosition().x + block.getSize().x/2.0f, block.getPosition().y + block.getSize().y/2.0f);
+        //Position the text in the center of the block
+        //blockText.setPosition(block.getPosition().x + block.getSize().x / 2, block.getPosition().y + block.getSize().y / 2);
+        std::cout << "Block text initialized at position: " << blockText.getPosition().x << ", " << blockText.getPosition().y << std::endl;
     }
-
-    // reflectBall(ball);
-    // if(strength <= 0)
-    // {
-    //     std::cout << "Delete" << std::endl;
-    //     isDestroyed = true;
-  
-    // }
 }
+
 
 void Block:: reflectBall(Ball& ball) 
 {
@@ -92,25 +39,22 @@ void Block:: reflectBall(Ball& ball)
     CollisionDetails collision = checkCollision(blockShape, ballShape);
     if (collision.collisionType != 0) {  // If there's a collision
         sf::Vector2f incomingVelocity = ball.getVelocity();
+        --blockStrength;
         float dotProduct = incomingVelocity.x * collision.normal.x + incomingVelocity.y * collision.normal.y;
         sf::Vector2f reflectedVelocity = incomingVelocity - 2 * dotProduct * collision.normal;
         ball.setVelocity(reflectedVelocity);
+        if (blockStrength <= 0) {
+            isDestroyed = true;
+        }
     }
 }
-/*Check collision between ball and block
-# return 0 if they dont hit
-# return 1 if they hit left or right
-# return 2 if they hit top or bottom
-# return 3 if they hit a corner
-*/
-
 
  struct CollisionDetails {
     int collisionType;       // 0 = No collision, 1 = Side, 2 = Top/Bottom, 3 = Corner
     sf::Vector2f normal;     // Normal vector at the point of collision
 };
 
-    Block::CollisionDetails Block::checkCollision(const sf::RectangleShape &r1, const sf::CircleShape &c1){
+Block::CollisionDetails Block::checkCollision(const sf::RectangleShape &r1, const sf::CircleShape &c1){
     // Variables to find the gap and calculate distance
     float gapX = std::clamp(c1.getPosition().x, r1.getPosition().x, r1.getPosition().x + r1.getSize().x);
     float gapY = std::clamp(c1.getPosition().y, r1.getPosition().y, r1.getPosition().y + r1.getSize().y);
@@ -137,7 +81,41 @@ void Block:: reflectBall(Ball& ball)
 
     return details;
 }
-  
+
+void Block::update(sf::RenderWindow &window) {
+    // update
+    blockText.setString(std::to_string(blockStrength));
+ 
+    
+}    
+
+void Block::render(sf::RenderTarget& target) const {
+    
+}
+
+//getter setter method
+
+bool Block:: getIsDestroyed() const
+{
+    return isDestroyed;
+}
+
+void Block:: setSize(sf::Vector2f size)
+{
+    block.setSize(size);
+}
+
+const sf::RectangleShape& Block::getShape() const {
+    return block;
+}
+
+const sf::Text& Block::getText() const {
+    return blockText;
+}
+
+int Block::getStrength() const {
+    return blockStrength;
+}
 
 
-
+//logic for block: when strength is 0, block is destroyed

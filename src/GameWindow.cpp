@@ -1,7 +1,6 @@
-#include "../include/Game.h"
+#include "../include/GameWindow.h"
 
-//constructor and destructor
-Game::Game()
+GameWindow::GameWindow ()
 {
     this->initializeVariables();
     this->initializeWindow();
@@ -10,20 +9,18 @@ Game::Game()
     this->initializeLimitLine();
 }
 
-Game::~Game()
+GameWindow::~GameWindow()
 {
     delete this->window;
 }
 
 //privarte functions
-void Game:: initializeVariables()
+void GameWindow::initializeVariables()
 {
-    this->window = nullptr;
-    this->endGame = false;
-    
+    this->window = nullptr;    
 }
 
-void Game:: initializeWindow()
+void GameWindow:: initializeWindow()
 {
     this->videoMode.height = 1024;
     this->videoMode.width = 1280;
@@ -31,7 +28,7 @@ void Game:: initializeWindow()
     this->window->setFramerateLimit(60);
 }
 
-void Game:: initializeBackground()
+void GameWindow::initializeBackground()
 {
     // Load a sprite to display
     if(!backgroundTexture.loadFromFile("assets/images/blue.jpg"))
@@ -42,7 +39,7 @@ void Game:: initializeBackground()
     }
 }
 
-void Game:: initializeText()
+void GameWindow::initializeText()
 {
     //Create Heading to display
     if (!font.loadFromFile("assets/fonts/font.ttf"))
@@ -54,11 +51,11 @@ void Game:: initializeText()
         text.setString("ICE Smash");
         text.setCharacterSize(50);
         text.setFillColor(sf::Color::White);  
-        text.setPosition(100, 50);
+        text.setPosition(100, 20);
     }  
 }
 
-void Game::initializeLimitLine()
+void GameWindow::initializeLimitLine()
 {
     // initialize Limit Line
     this->limitLine.setSize(sf::Vector2f(1280.f, 10.f));
@@ -67,18 +64,8 @@ void Game::initializeLimitLine()
 
 }
 
-// void Game:: initializeBlocks(){
-//     int top = 0;
-//     int left = 0;
-//     for (int i = 0; i < 5; i++){
-//         blocks.push_back(new NormalBlock(top, left));
-//         left += 210;
-//     }
-// }
-
-
 //functions
-void Game::updateEvent()
+void GameWindow::updateEvent()
 {
     while (this->window->pollEvent(this->ev))
     {
@@ -91,15 +78,20 @@ void Game::updateEvent()
     }
 }
 
-void Game::update(sf::Time dt)
+void GameWindow::update()
 {
     if(!window->isOpen()) return;
     
     this->updateEvent();
-    this->cannon.update(dt, *this->window);
-    this->cannon.ballsHitBlock(this->normalBlock);
+
+    // call the shootCannon function
+    gameLevel.shootCannon();
+    gameLevel.update(*this->window);
+
+
 }
-void Game:: render()
+
+void GameWindow::render()
 {
     //clear window (clear old frame)
     this->window->clear();
@@ -109,27 +101,15 @@ void Game:: render()
     this->window->draw(this->text);
     this->window->draw(this->limitLine);
 
-    //draw game objects
-    this->window->draw(this->cannon);
-
-    //draw block objects
-    this->window->draw(this->normalBlock);
-    
+    //gameLevel.update(*this->window);
+    gameLevel.render(*this->window);
     
     //display frame in window
     this->window->display();
 }
 
 //accessor
-const bool Game:: running() const
+const bool GameWindow::running() const
 {
     return this-> window->isOpen();
 }
-
-// void Game::removeBock(Block* block){
-//     auto it = std::find(blocks.begin(), blocks.end(), block);
-//     if (it != blocks.end()) {
-//         delete *it; // Free the memory
-//         blocks.erase(it); // Remove from the vector
-//     }
-// }

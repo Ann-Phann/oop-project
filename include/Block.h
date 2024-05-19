@@ -1,54 +1,44 @@
 #ifndef BLOCK_H
 #define BLOCK_H
 
-
-
-#include <math.h>
-#include <vector>
 #include <iostream>
-#include <memory>
-#include <string>
-
+#include <SFML/Graphics.hpp>
+#include "GameObject.h"
 #include "Ball.h"
 
-#include <SFML/Graphics.hpp>
-#include <SFML/System.hpp>
-#include <SFML/Window.hpp>
-#include <SFML/Audio.hpp>
-
-class Block : public sf::Sprite
-{
+class Block : public GameObject{
 protected:
     sf::RectangleShape block;
-    int strength;
+    int blockStrength;
     bool isDestroyed;
-    void initializeBlock();
-    sf::Vector2f size;
 
-    //text for block strength
-    sf::Font blockFont;
-    // sf::Text blockStrength;
+    //block strength display
+    sf::Text blockText;
+    //sf::Font blockFont;
+
 public:
-    Block();
-    virtual ~Block() = 0;  
+    Block(float x, float y, float width, float height, int strength);
 
     struct CollisionDetails {
-        int collisionType;       // 0 = No collision, 1 = Side, 2 = Top/Bottom, 3 = Corner
-        sf::Vector2f normal;     // Normal vector at the point of collision
+    int collisionType;       // 0 = No collision, 1 = Side, 2 = Top/Bottom, 3 = Corner
+    sf::Vector2f normal;     // Normal vector at the point of collision
     };
 
-    //public functions
-    virtual void update(Ball& ball) = 0;
-    //virtual void update(const sf::Time& dt, Ball& ball) = 0;
-    virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override = 0;
-
-    bool getIsDestroyed() const;
-    virtual void hitBall(Ball& ball);
-    int getStrength();
     CollisionDetails checkCollision(const sf::RectangleShape &rectangle, const sf::CircleShape &circle);
     void reflectBall(Ball& ball);
-    sf::Text blockStrength;
+    bool getIsDestroyed() const ;
 
+    //void block
+
+    void update(sf::RenderWindow &window) override;
+    void render(sf::RenderTarget& target) const override;
+
+    //getter setter method
+    int getStrength() const;
+    const sf::RectangleShape& getShape() const;
+    const sf::Text& getText() const;
+    void setSize(sf::Vector2f size);
+    
 };
 
-#endif
+#endif // BLOCK_H

@@ -8,3 +8,8 @@ if(shape.getPosition().y > screenHeight - shape.getRadius())
 {
     yStep = -yStep;
 }
+
+// ammo is not equal to currentLevel
+void Cannon::reload(int currentLevel) {
+    ammo = currentLevel;
+}

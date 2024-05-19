@@ -2,17 +2,11 @@
 #define BALL_H
 
 #include <iostream>
-#include <vector>
-
 #include <SFML/Graphics.hpp>
-#include <SFML/System.hpp>
-#include <SFML/Window.hpp>
-#include <SFML/Audio.hpp>
-#include <math.h>
+#include "GameObject.h"
 
-class Ball : public sf::Sprite
-{
-private:   
+class Ball : public GameObject {
+private:
     sf::CircleShape ball;
     sf::Vector2f velocity;
 
@@ -21,7 +15,6 @@ private:
 
 public:
     Ball();
-    ~Ball();
 
     float radius;
 
@@ -30,11 +23,14 @@ public:
     void setVelocity(const sf::Vector2f& velocity);
     sf::Vector2f getPosition() const;
     sf::Vector2f getVelocity() const;
+    void updatePosition(const sf::Time& dt, sf::RenderWindow& window);
     void reflect(const sf::Vector2f& normal);
-    void update(const sf::Time& dt, sf::RenderWindow& window);  // Update the ball's position based on its velocity
-    void draw(sf::RenderTarget& target, sf::RenderStates states) const;  // Render the ball
-    const sf::CircleShape& getCircle() const { return ball; }  // Getter for the circle shape
+    const sf::CircleShape& getCircle() const;  // Getter for the circle shape
     
-    
+    void update(sf::RenderWindow &window) override;
+    void render(sf::RenderTarget& target) const override;
+
+    friend class Cannon;
 };
-#endif
+
+#endif // BALL_H

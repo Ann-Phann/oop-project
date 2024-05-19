@@ -13,11 +13,6 @@ Ball::Ball()
     initializeBall();
 }
 
-Ball::~Ball()
-{
-
-}
-
 void Ball::setPosition(const sf::Vector2f& position) {
     this->ball.setPosition(position);
 }
@@ -34,8 +29,12 @@ sf::Vector2f Ball::getVelocity() const {
     return velocity;
 }
 
-void Ball::update(const sf::Time& dt, sf::RenderWindow& window) {
-        // Update position based on velocity
+const sf::CircleShape& Ball::getCircle() const {
+    return ball;
+}
+
+void Ball::updatePosition(const sf::Time& dt, sf::RenderWindow& window) {
+    // Update position based on velocity
     sf::Vector2f position = this->getPosition();
     position += this->velocity * dt.asSeconds();  // Move the ball
     this->setPosition(position);
@@ -75,14 +74,16 @@ void Ball::update(const sf::Time& dt, sf::RenderWindow& window) {
     }
 }
 
-
 void Ball::reflect(const sf::Vector2f& normal) {
     // Reflect the velocity vector
     float dotProduct = this->velocity.x * normal.x + this->velocity.y * normal.y;
     this->velocity = this->velocity - 2 * dotProduct * normal;
     this->setPosition(this->getPosition());  // Update the position after reflection
 }
+void Ball::update(sf::RenderWindow &window) {
+    this->updatePosition(sf::seconds(1.f / 60.f), window);
+}
 
-void Ball::draw(sf::RenderTarget& target, sf::RenderStates states) const {
-    target.draw(this->ball, states);
+void Ball::render(sf::RenderTarget& target) const {
+    target.draw(ball);
 }
