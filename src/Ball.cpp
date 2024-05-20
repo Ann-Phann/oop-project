@@ -80,6 +80,11 @@ void Ball::reflect(const sf::Vector2f& normal) {
     this->velocity = this->velocity - 2 * dotProduct * normal;
     this->setPosition(this->getPosition());  // Update the position after reflection
 }
+
+float Ball::getRadius() const {
+    return ball.getRadius();
+}
+
 void Ball::update(sf::RenderWindow &window) {
     this->updatePosition(sf::seconds(1.f / 60.f), window);
 }

@@ -13,13 +13,10 @@ private:
 
 public:
     Scoreboard();
-
     void addScores();
     void updatePoints();
     void render(sf::RenderTarget& target) const;
-
-    //functions to initialize the font and text for score
-    void initializePointText();
+    int getScores();
 };
 
 #endif // SCOREBOARD_H

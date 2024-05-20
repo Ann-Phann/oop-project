@@ -19,6 +19,10 @@ private:
     sf::Text text;
     sf::RectangleShape limitLine;
 
+    bool leftMouseClicked = false; // To track space key press state
+        sf::Clock clickClock; // Clock to measure delay since user click
+
+
      //private functions
     void initializeVariables();
     void initializeWindow();

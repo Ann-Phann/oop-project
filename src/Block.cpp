@@ -3,14 +3,14 @@
 // Declare a static sf::Font object
 static sf::Font blockFont;
 
-Block::Block(float x, float y, float width, float height, int strength) : blockStrength(strength) {
+Block::Block(float x, float y) : blockStrength(1) {
+    block.setSize(sf::Vector2f(BLOCK_WIDTH, BLOCK_HEIGHT));
     block.setPosition(x, y);
-    block.setSize(sf::Vector2f(width, height));
     block.setFillColor(sf::Color::Green);
     block.setOutlineThickness(5.f);
     block.setOutlineColor(sf::Color(250, 150, 100));
     isDestroyed = false;
-    blockStrength = strength;
+   
 
     std::cout << "Loading font for block..." << std::endl;
     if (!blockFont.loadFromFile("assets/fonts/Roboto-Black.ttf"))
@@ -25,12 +25,9 @@ Block::Block(float x, float y, float width, float height, int strength) : blockS
         sf::FloatRect textRect = blockText.getLocalBounds();
         blockText.setOrigin(textRect.left + textRect.width/2.0f, textRect.top + textRect.height/2.0f);
         blockText.setPosition(block.getPosition().x + block.getSize().x/2.0f, block.getPosition().y + block.getSize().y/2.0f);
-        //Position the text in the center of the block
-        //blockText.setPosition(block.getPosition().x + block.getSize().x / 2, block.getPosition().y + block.getSize().y / 2);
         std::cout << "Block text initialized at position: " << blockText.getPosition().x << ", " << blockText.getPosition().y << std::endl;
     }
 }
-
 
 void Block:: reflectBall(Ball& ball) 
 {
@@ -38,8 +35,8 @@ void Block:: reflectBall(Ball& ball)
     sf::CircleShape ballShape = ball.getCircle(); // Assuming Ball class has a getCircle method returning sf::CircleShap
     CollisionDetails collision = checkCollision(blockShape, ballShape);
     if (collision.collisionType != 0) {  // If there's a collision
-        sf::Vector2f incomingVelocity = ball.getVelocity();
         --blockStrength;
+        sf::Vector2f incomingVelocity = ball.getVelocity();
         float dotProduct = incomingVelocity.x * collision.normal.x + incomingVelocity.y * collision.normal.y;
         sf::Vector2f reflectedVelocity = incomingVelocity - 2 * dotProduct * collision.normal;
         ball.setVelocity(reflectedVelocity);
@@ -82,19 +79,16 @@ Block::CollisionDetails Block::checkCollision(const sf::RectangleShape &r1, cons
     return details;
 }
 
+
 void Block::update(sf::RenderWindow &window) {
     // update
     blockText.setString(std::to_string(blockStrength));
- 
-    
 }    
 
 void Block::render(sf::RenderTarget& target) const {
-    
 }
 
 //getter setter method
-
 bool Block:: getIsDestroyed() const
 {
     return isDestroyed;
@@ -117,5 +111,8 @@ int Block::getStrength() const {
     return blockStrength;
 }
 
+void Block::setPosition(float x, float y) {
+    block.setPosition(x, y);
+    blockText.setPosition(x + block.getSize().x / 2.0f, y + block.getSize().y / 2.0f);
+}
 
-//logic for block: when strength is 0, block is destroyed

@@ -19,6 +19,7 @@ private:
     sf::Vertex reflectionAimLine[2];
 
     //shooting variables
+    int initialAmmo;
     int ammo;
     sf::Time fireInterval;
     sf::Time timeSinceLastShot;
@@ -54,7 +55,10 @@ public:
     void shoot();
     void handleInput();
     void updateShooting(sf::Time deltaTime);
-    void reload(int currentLevel);
+    void reload(int ammo);
+    bool checkBallsTouchBottom(float screenHeight); // New function
+    std::vector<std::shared_ptr<Ball>>& getBalls(); // Getter for balls
+
 
     friend class GameLevel;
 };

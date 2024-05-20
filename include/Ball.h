@@ -13,6 +13,7 @@ private:
     //private functions
     void initializeBall();
 
+
 public:
     Ball();
 
@@ -26,10 +27,11 @@ public:
     void updatePosition(const sf::Time& dt, sf::RenderWindow& window);
     void reflect(const sf::Vector2f& normal);
     const sf::CircleShape& getCircle() const;  // Getter for the circle shape
-    
+    float getRadius() const;    
     void update(sf::RenderWindow &window) override;
     void render(sf::RenderTarget& target) const override;
 
+    // getters and setters
     friend class Cannon;
 };
 

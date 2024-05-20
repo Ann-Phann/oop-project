@@ -7,7 +7,8 @@ void Cannon::initializeVariables()
 {
     isPressed = false;
     canRotateGun = true;
-    ammo = 21;
+    initialAmmo = 1;
+    ammo = initialAmmo;
     fireInterval = sf::seconds(0.3f); // Time between shots
     timeSinceLastShot = sf::Time::Zero; // Time since the last shot was fired
 }
@@ -179,10 +180,6 @@ void Cannon::shoot() {
             sf::Vector2f firingPosition = calculateGunTipPosition(); // Calculate where the ball should start
             sf::Vector2f firingVelocity = calculateFiringVelocity(); // Calculate the initial velocity based on the cannon's orientation
 
-            // Add some randomness to the firing velocity for a "shotgun" effect
-            firingVelocity.x += (rand() % 100 - 50) / 100.0f;
-            firingVelocity.y += (rand() % 100 - 50) / 100.0f;
-
             // Create a new ball using smart pointers for automatic memory management
             std::shared_ptr<Ball> newBall = std::make_shared<Ball>();
             newBall->setPosition(firingPosition);
@@ -216,8 +213,11 @@ void Cannon::updateShooting(sf::Time deltaTime) {
     }
 }
 
-void Cannon::reload(int currentLevel) {
-    ammo = currentLevel * 10;
+void Cannon::reload(int extraAmmo) {
+    // Reset the ammo count
+    ammo = initialAmmo;
+    ammo += extraAmmo;
+    initialAmmo = ammo;
 }
 
 
@@ -241,3 +241,16 @@ void Cannon::render(sf::RenderTarget& target) const {
     target.draw(gun);
 }
 
+bool Cannon::checkBallsTouchBottom(float screenHeight) {
+    for (const auto& ball : balls) {
+        if (ball->getPosition().y + ball->getRadius() < screenHeight) {
+            return false;
+        }
+    }
+    return true;
+}
+
+// Getter for balls
+std::vector<std::shared_ptr<Ball>>& Cannon::getBalls() {
+    return balls;
+}

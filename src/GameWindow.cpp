@@ -7,6 +7,8 @@ GameWindow::GameWindow ()
     this->initializeBackground();
     this->initializeText();
     this->initializeLimitLine();
+    // Initialize the game level with initial rows if needed
+    gameLevel.createNewRow();
 }
 
 GameWindow::~GameWindow()
@@ -44,7 +46,7 @@ void GameWindow::initializeText()
     //Create Heading to display
     if (!font.loadFromFile("assets/fonts/font.ttf"))
     {
-        std::cout << "Failed to load background image!" << std::endl;
+        std::cout << "Failed to load game name!" << std::endl;
     } else 
     {
         text.setFont(font);
@@ -74,6 +76,13 @@ void GameWindow::updateEvent()
             case sf::Event::Closed:
                 window->close();
                 break;
+            case sf::Event::MouseButtonPressed:
+                if (this->ev.mouseButton.button == sf::Mouse::Left)
+                {
+                    leftMouseClicked = true;
+                    clickClock.restart(); // Restart the clock
+                }
+                break;
         }
     }
 }
@@ -84,9 +93,52 @@ void GameWindow::update()
     
     this->updateEvent();
 
+    // // Handle input for creating a new row when the space bar is pressed
+    //  if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
+    //         if (!spacePressed) {
+    //             gameLevel.createNewRow();
+    //             spacePressed = true; // Set flag to true when space is pressed
+    //         }
+    //     } else {
+    //         spacePressed = false; // Reset flag when space is released
+    //     }
+
+    
+
     // call the shootCannon function
     gameLevel.shootCannon();
+    // Handle input
+
     gameLevel.update(*this->window);
+    
+    // Check if all balls have touched the bottom edge of the screen, only if the user has clicked and 5 seconds have passed
+    if (leftMouseClicked && clickClock.getElapsedTime().asSeconds() >= 1.0f) {
+        if (gameLevel.getCannon().checkBallsTouchBottom(window->getSize().y)) {
+            
+            // Up the level
+            gameLevel.setCurrentLevel();
+            // Create a new row of blocks
+            gameLevel.createNewRow();
+            // Reload ammo or any other actions you want to perform
+            gameLevel.getCannon().reload(0);
+            leftMouseClicked = false; // Reset the flag after handling the condition
+        }
+    }
+
+    //check win lose condition
+        // Check win condition
+    if (gameLevel.checkWinCondition()) {
+        std::cout << "You win!" << std::endl;
+        window->close();
+        return;
+    }
+
+    // Check lose condition
+    if (gameLevel.checkLoseCondition(limitLine.getPosition().y)) {
+        std::cout << "You lose!" << std::endl;
+        window->close();
+        return;
+    }
 
 
 }
