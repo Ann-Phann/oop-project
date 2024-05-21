@@ -2,7 +2,7 @@
 #include "../include/NormalBlock.h"
 #include "../include/ExtraBallBlock.h"
 #include "../include/DoubleStrengthBlock.h"
-
+#include "../include/BombBlock.h"
 
 
 
@@ -14,12 +14,19 @@ GameLevel::GameLevel() : currentLevel(1) {
     } else {
     //Set properties for pointText
         levelText.setFont(fontLevel);
-        levelText.setString("Level: 1");  // Set the level to 10
+        levelText.setString("Level: 1");  // Set the level to 1
         levelText.setCharacterSize(25);
         levelText.setFillColor(sf::Color::White);
         levelText.setPosition(50.f, 961.f);  // Position it above the score
         
         std::cout << "Level text initialized" << std::endl;
+
+        // Set properties for numBallText
+        numBallText.setFont(fontLevel);
+        numBallText.setString("Balls: 1");  // Set the number of balls to 1
+        numBallText.setCharacterSize(25);
+        numBallText.setFillColor(sf::Color::White);
+        numBallText.setPosition(740.f, 961.f);  // Position it beside the cannon
     }
    // Create array
    for (auto& row : blocks) {
@@ -49,17 +56,41 @@ void GameLevel::update(sf::RenderWindow &window) {
     }
 
     //   // Update the blocks
-    for (auto& row : blocks) {
-        for (auto& block : row) {
+    // for (auto& row : blocks) {
+    //     for (auto& block : row) {
+    //         if (block) {
+    //             block->update(window);
+    //             if (block->getIsDestroyed()) {
+    //                 scoreboard.addScores();
+    //                 if (block->isExtraBall()) {
+    //                         cannon.reload(1); // Add one more ball to ammo
+    //                     }
+                    
+            
+    //                 delete block;
+    //                 block = nullptr;
+    //             }
+    //         }
+    //     }
+    // }
+
+    for (int i = 0; i < ROWS; ++i) {
+        for (int j = 0; j < COLS; ++j) {
+            Block* block = blocks[i][j];
             if (block) {
                 block->update(window);
                 if (block->getIsDestroyed()) {
                     scoreboard.addScores();
                     if (block->isExtraBall()) {
-                            cannon.reload(1); // Add one more ball to ammo
-                        }
+                        cannon.reload(1); // Add one more ball to ammo
+                    }
+                    if (block->isBomb()) {
+                        //BombBlock* bombBlock = dynamic_cast<BombBlock*>(block);
+                        this->rowDestroy(blocks, i); // Destroy the entire row
+                        break;
+                    }
                     delete block;
-                    block = nullptr;
+                    blocks[i][j] = nullptr;
                 }
             }
         }
@@ -70,6 +101,9 @@ void GameLevel::update(sf::RenderWindow &window) {
 
     // Update the level text
     updateLevelText();
+
+    //update the number of balls
+    updateNumBallText();
 }
 
 void GameLevel::createNewRow() {
@@ -133,6 +167,14 @@ void GameLevel::createNewRow() {
         extraBallBlockAdded = true;
     }
 
+    // Place one BombBlock if needed
+    bool bombBlockAdded = false;
+    if (currentLevel >= 7 && (currentLevel - 7) % 7 == 0) {
+        blocks[0][availableCols.back()] = new BombBlock(availableCols.back() * BLOCK_WIDTH, 0, currentLevel);
+        availableCols.pop_back();
+        bombBlockAdded = true;
+    }
+
     // Determine if a DoubleStrengthBlock should be added
     bool doubleStrengthBlockAdded = false;
     if (currentLevel >= 3 && (currentLevel - 3) % 5 == 0) {
@@ -142,7 +184,7 @@ void GameLevel::createNewRow() {
     }
 
     // Place the remaining NormalBlocks
-    for (int i = 0; i < numNewBlocks - extraBallBlockAdded - doubleStrengthBlockAdded; ++i) {
+    for (int i = 0; i < numNewBlocks - extraBallBlockAdded - doubleStrengthBlockAdded - bombBlockAdded; ++i) {
         blocks[0][availableCols.back()] = new NormalBlock(availableCols.back() * BLOCK_WIDTH, 0, currentLevel);
         availableCols.pop_back();
     }
@@ -154,7 +196,7 @@ void GameLevel::updateBlockPositions() {
     for (int i = 0; i < ROWS; ++i) {
         for (int j = 0; j < COLS; ++j) {
             if (blocks[i][j]) {
-                blocks[i][j]->setPosition(j * BLOCK_WIDTH, i * BLOCK_HEIGHT);
+                blocks[i][j]->setPosition(j * (BLOCK_WIDTH + 3.f), i * (BLOCK_HEIGHT + 3.f));
             }
         }
     }
@@ -202,6 +244,9 @@ void GameLevel::render(sf::RenderTarget& target) const {
 
     std::cout << "Rendering level text" << std::endl;
     target.draw(levelText);
+
+    std::cout << "Rendering num ball text" << std::endl;
+    target.draw(numBallText);
     
 }
 
@@ -236,6 +281,10 @@ void GameLevel::updateLevelText() {
     levelText.setString("Level : " + std::to_string(currentLevel));
 }
 
+void GameLevel::updateNumBallText() {
+    int numBalls = cannon.initialAmmo;
+    numBallText.setString("Balls: " + std::to_string(numBalls));
+}
 
 Cannon& GameLevel::getCannon() {
     return cannon;
@@ -254,5 +303,19 @@ bool GameLevel::checkLoseCondition(float limitLineY) const {
 }
 
 bool GameLevel::checkWinCondition() const {
-    return currentLevel >= 12;
+    return currentLevel >= 20;
 }
+
+//function for bomb to destroy whole row
+void GameLevel::rowDestroy(std::array<std::array<Block*, COLS>, ROWS>& blocks, int row) {
+    for (int col = 0; col < COLS; ++col) {
+        if (blocks[row][col] != nullptr) {
+            delete blocks[row][col];
+            blocks[row][col] = nullptr;
+        }
+    }
+}
+
+
+
+

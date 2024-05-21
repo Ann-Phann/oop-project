@@ -1,14 +1,14 @@
 #include "../include/GameWindow.h"
 
-GameWindow::GameWindow ()
+GameWindow::GameWindow() : gameLevel(nullptr), gameState(GameState::MENU), leftMouseClicked(false), menuMouseClicked(false)
 {
     this->initializeVariables();
     this->initializeWindow();
     this->initializeBackground();
-    this->initializeText();
     this->initializeLimitLine();
     // Initialize the game level with initial rows if needed
-    gameLevel.createNewRow();
+        this->resetGameLevel();
+
 }
 
 GameWindow::~GameWindow()
@@ -26,7 +26,7 @@ void GameWindow:: initializeWindow()
 {
     this->videoMode.height = 1024;
     this->videoMode.width = 1280;
-    this->window = new sf::RenderWindow(videoMode, "SFML works!", sf::Style::Titlebar | sf::Style::Close);
+    this->window = new sf::RenderWindow(videoMode, "Ice Smash!", sf::Style::Titlebar | sf::Style::Close);
     this->window->setFramerateLimit(60);
 }
 
@@ -41,21 +41,7 @@ void GameWindow::initializeBackground()
     }
 }
 
-void GameWindow::initializeText()
-{
-    //Create Heading to display
-    if (!font.loadFromFile("assets/fonts/font.ttf"))
-    {
-        std::cout << "Failed to load game name!" << std::endl;
-    } else 
-    {
-        text.setFont(font);
-        text.setString("ICE Smash");
-        text.setCharacterSize(50);
-        text.setFillColor(sf::Color::White);  
-        text.setPosition(100, 20);
-    }  
-}
+
 
 void GameWindow::initializeLimitLine()
 {
@@ -79,8 +65,9 @@ void GameWindow::updateEvent()
             case sf::Event::MouseButtonPressed:
                 if (this->ev.mouseButton.button == sf::Mouse::Left)
                 {
+                    menuMouseClicked = true;
                     leftMouseClicked = true;
-                    clickClock.restart(); // Restart the clock
+                    clickClock.restart();
                 }
                 break;
         }
@@ -93,51 +80,75 @@ void GameWindow::update()
     
     this->updateEvent();
 
-    // // Handle input for creating a new row when the space bar is pressed
-    //  if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
-    //         if (!spacePressed) {
-    //             gameLevel.createNewRow();
-    //             spacePressed = true; // Set flag to true when space is pressed
-    //         }
-    //     } else {
-    //         spacePressed = false; // Reset flag when space is released
-    //     }
+    switch (gameState) {
+        case GameState::MENU:
+            menuScreen.update(*window);
+            if (menuMouseClicked) {
+                sf::Vector2i mousePos = sf::Mouse::getPosition(*window);
+                if (menuScreen.isPlayButtonClicked(mousePos)) {
+                    resetGameLevel();  // Reset the game level when starting a new game
+                    gameState = GameState::PLAYING;
+                } else if (menuScreen.isHighScoresButtonClicked(mousePos)) {
+                    gameState = GameState::HIGH_SCORES;
+                } else if (menuScreen.isExitButtonClicked(mousePos)) {
+                    window->close();
+                }
+                menuMouseClicked = false;
+                leftMouseClicked = false;
 
-    
-
-    // call the shootCannon function
-    gameLevel.shootCannon();
-    // Handle input
-
-    gameLevel.update(*this->window);
-    
-    // Check if all balls have touched the bottom edge of the screen, only if the user has clicked and 5 seconds have passed
-    if (leftMouseClicked && clickClock.getElapsedTime().asSeconds() >= 1.0f) {
-        if (gameLevel.getCannon().checkBallsTouchBottom(window->getSize().y)) {
+            }
+            break;
+        case GameState::PLAYING:
+            // Call the shootCannon function
+            if (leftMouseClicked) {
+                gameLevel->shootCannon();
+            }
             
-            // Up the level
-            gameLevel.setCurrentLevel();
-            // Create a new row of blocks
-            gameLevel.createNewRow();
-            // Reload ammo or any other actions you want to perform
-            gameLevel.getCannon().reload(0);
-            leftMouseClicked = false; // Reset the flag after handling the condition
-        }
-    }
 
-    //check win lose condition
-        // Check win condition
-    if (gameLevel.checkWinCondition()) {
-        std::cout << "You win!" << std::endl;
-        window->close();
-        return;
-    }
+            // Update the game level
+            gameLevel->update(*this->window);
 
-    // Check lose condition
-    if (gameLevel.checkLoseCondition(limitLine.getPosition().y)) {
-        std::cout << "You lose!" << std::endl;
-        window->close();
-        return;
+            // Check win condition
+            if (gameLevel->checkWinCondition()) {
+                std::cout << "You win!" << std::endl;
+                window->close();
+                return;
+            }
+
+            // Check lose condition
+             if (gameLevel->checkLoseCondition(limitLine.getPosition().y)) {
+                gameState = GameState::GAME_OVER;
+                return;
+            }
+            // Check if all balls have touched the bottom edge of the screen, only if the user has clicked and 5 seconds have passed
+            if (leftMouseClicked && clickClock.getElapsedTime().asSeconds() >= 2.0f) {
+                if (gameLevel->getCannon().checkBallsTouchBottom(window->getSize().y)) {
+                    // Up the level
+                    gameLevel->setCurrentLevel();
+                    // Create a new row of blocks
+                    gameLevel->createNewRow();
+                    // Reload ammo or any other actions you want to perform
+                    gameLevel->getCannon().reload(0);
+                    leftMouseClicked = false; // Reset the flag after handling the condition
+                }
+            }
+            break;
+        case GameState::HIGH_SCORES:
+            // Handle high scores screen logic
+            break;
+        case GameState::GAME_OVER:
+            gameOver.update(*window);
+            if (menuMouseClicked) {
+                sf::Vector2i mousePos = sf::Mouse::getPosition(*window);
+                if (gameOver.isBackToMenuButtonClicked(mousePos)) {
+                    gameState = GameState::MENU;
+                } else if (gameOver.isExitButtonClicked(mousePos)) {
+                    window->close();
+                }
+                menuMouseClicked = false;
+                leftMouseClicked = false;
+            }
+            break;
     }
 
 
@@ -145,18 +156,31 @@ void GameWindow::update()
 
 void GameWindow::render()
 {
-    //clear window (clear old frame)
+    // Clear window (clear old frame)
     this->window->clear();
 
-    //draw background
-    this->window->draw(this->backgroundSprite);
-    this->window->draw(this->text);
-    this->window->draw(this->limitLine);
+    switch (gameState) {
+        case GameState::MENU:
+            menuScreen.render(*this->window);
+            break;
+        case GameState::PLAYING:
+            // Draw background
+            this->window->draw(this->backgroundSprite);
+            this->window->draw(this->text);
+            this->window->draw(this->limitLine);
 
-    //gameLevel.update(*this->window);
-    gameLevel.render(*this->window);
-    
-    //display frame in window
+            // Render the game level
+            gameLevel->render(*this->window);
+            break;
+        case GameState::HIGH_SCORES:
+            // Render high scores screen
+            break;
+        case GameState::GAME_OVER:
+            gameOver.render(*this->window);
+            break;
+    }
+
+    // Display frame in window
     this->window->display();
 }
 
@@ -164,4 +188,13 @@ void GameWindow::render()
 const bool GameWindow::running() const
 {
     return this-> window->isOpen();
+}
+
+
+void GameWindow::resetGameLevel() {
+    if (gameLevel != nullptr) {
+        delete gameLevel;
+    }
+    gameLevel = new GameLevel();
+    gameLevel->createNewRow();  // Ensure the first row of blocks is created
 }

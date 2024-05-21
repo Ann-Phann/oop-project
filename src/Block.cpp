@@ -7,7 +7,7 @@ Block::Block(float x, float y) : blockStrength(1) {
     block.setSize(sf::Vector2f(BLOCK_WIDTH, BLOCK_HEIGHT));
     block.setPosition(x, y);
     block.setFillColor(sf::Color::Green);
-    block.setOutlineThickness(5.f);
+    block.setOutlineThickness(2.f);
     block.setOutlineColor(sf::Color(250, 150, 100));
     isDestroyed = false;
    

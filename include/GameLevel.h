@@ -8,6 +8,7 @@
 #include "Block.h"
 #include "Ball.h"
 #include "Scoreboard.h"
+
 #include <array>
 #include <algorithm> // For std::random_shuffle
 #include "Constants.h"
@@ -28,6 +29,8 @@ private:
     sf::Font fontLevel;
     sf::Text levelText;
 
+    sf::Text numBallText;
+
 public:
     GameLevel();
     ~GameLevel();
@@ -44,7 +47,8 @@ public:
     
     //update new level
     void updateLevelText();
-    //getter and setter
+    void updateNumBallText();
+    // getter and setter
     int getCurrentLevel() const;
     void setCurrentLevel();
 
@@ -55,6 +59,12 @@ public:
     //check win lose
     bool checkLoseCondition(float limitLineY) const;
     bool checkWinCondition() const;
+
+    //function for bomb to destroy whole row
+    void rowDestroy(std::array<std::array<Block*, COLS>, ROWS>& blocks, int row);
+
+
+
 };
 
 #endif // GAMELEVEL_H

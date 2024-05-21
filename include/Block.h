@@ -4,12 +4,13 @@
 #include <SFML/Graphics.hpp>
 #include "Ball.h"
 #include "Constants.h"
+#include "GameObject.h"
 const float BLOCK_WIDTH = 210.f;
 const float BLOCK_HEIGHT = 105.f;
 
 
 
-class Block {
+class Block : public GameObject {
 protected:
     sf::RectangleShape block;
     sf::Text blockText;
@@ -34,6 +35,7 @@ public:
     virtual int getStrength() const;
     virtual void setPosition(float x, float y);
     virtual bool isExtraBall() const { return false; } // For ExtraBallBlock
+    virtual bool isBomb() const { return false; } // For BombBlock
 
     CollisionDetails checkCollision(const sf::RectangleShape &r1, const sf::CircleShape &c1);
 };

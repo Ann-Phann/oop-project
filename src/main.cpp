@@ -1,9 +1,10 @@
 #include <iostream>
 #include "../include/GameWindow.h"
+#include "../include/Menu.h"
 
-int main() {
+int main(void) {
     GameWindow gameWindow;
-     //game loop
+
     while (gameWindow.running())
     {
         
@@ -15,4 +16,7 @@ int main() {
         gameWindow.render();
 
     }
+
+ \
+
 }
