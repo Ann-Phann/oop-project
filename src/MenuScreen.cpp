@@ -2,7 +2,7 @@
 
 MenuScreen::MenuScreen() : defaultColor(sf::Color::White), hoverColor(sf::Color::Green) {
     // Load background texture
-    if (!backgroundTexture.loadFromFile("assets/images/blue.jpg")) {
+    if (!backgroundTexture.loadFromFile("assets/images/menu.jpg")) {
         throw std::runtime_error("Failed to load background image");
     }
     backgroundSprite.setTexture(backgroundTexture);
@@ -37,6 +37,7 @@ void MenuScreen::update(sf::RenderWindow &window) {
     sf::Vector2i mousePos = sf::Mouse::getPosition(window);
     sf::Vector2f mousePosF(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y));
 
+    // Change button color on hover
     if (playButton.getGlobalBounds().contains(mousePosF)) {
         playButton.setFillColor(hoverColor);
     } else {
@@ -64,14 +65,17 @@ void MenuScreen::render(sf::RenderTarget& target) const {
     target.draw(exitButton);
 }
 
+// Check if the mouse is over the buttons
 bool MenuScreen::isPlayButtonClicked(sf::Vector2i mousePos) const {
     return playButton.getGlobalBounds().contains(static_cast<sf::Vector2f>(mousePos));
 }
 
+// Check if the mouse is over the buttons
 bool MenuScreen::isHighScoresButtonClicked(sf::Vector2i mousePos) const {
     return highScoresButton.getGlobalBounds().contains(static_cast<sf::Vector2f>(mousePos));
 }
 
+// Check if the mouse is over the buttons
 bool MenuScreen::isExitButtonClicked(sf::Vector2i mousePos) const {
     return exitButton.getGlobalBounds().contains(static_cast<sf::Vector2f>(mousePos));
 }

@@ -1,17 +1,23 @@
-#include "../include/GameOverScreen.h"
+#include "../include/GameWinScreen.h"
 
-GameOverScreen::GameOverScreen() {
+GameWinScreen::GameWinScreen() {
     // Load font
     if (!font.loadFromFile("assets/fonts/scoreFont.ttf")) {
         std::cout << "Error loading font" << std::endl;
     }
 
-    // Set up "Game Over" text
-    gameOverText.setFont(font);
-    gameOverText.setString("Game Over");
-    gameOverText.setCharacterSize(50);
-    gameOverText.setFillColor(sf::Color::Red);
-    gameOverText.setPosition(640.f - gameOverText.getGlobalBounds().width / 2, 300.f);
+    // Set up "You Win" text
+    winText.setFont(font);
+    winText.setString("Congratulations! You Win!");
+    winText.setCharacterSize(70);
+    winText.setFillColor(sf::Color::Green);
+    winText.setPosition(640.f - winText.getGlobalBounds().width / 2, 200.f);
+
+    // Set up total points text
+    totalPointsText.setFont(font);
+    totalPointsText.setCharacterSize(50);
+    totalPointsText.setFillColor(sf::Color::White);
+    totalPointsText.setPosition(640.f - totalPointsText.getGlobalBounds().width / 2, 300.f);
 
     // Set up Back to Menu button
     backToMenuButton.setSize(sf::Vector2f(200.f, 50.f));
@@ -42,30 +48,36 @@ GameOverScreen::GameOverScreen() {
     );
 
     // Load background
-    if (!backgroundTexture.loadFromFile("assets/images/lose.jpg")) {
+    if (!backgroundTexture.loadFromFile("assets/images/win.jpg")) {
         std::cout << "Failed to load background image!" << std::endl;
     } else {
         backgroundSprite.setTexture(backgroundTexture);
     }
 }
 
-void GameOverScreen::update(sf::RenderWindow& window) {
+void GameWinScreen::update(sf::RenderWindow& window) {
     // Handle events for buttons if needed
 }
 
-void GameOverScreen::render(sf::RenderWindow& window) const {
+void GameWinScreen::render(sf::RenderWindow& window) const {
     window.draw(backgroundSprite);
-    window.draw(gameOverText);
+    window.draw(winText);
+    window.draw(totalPointsText);
     window.draw(backToMenuButton);
     window.draw(backToMenuButtonText);
     window.draw(exitButton);
     window.draw(exitButtonText);
 }
 
-bool GameOverScreen::isBackToMenuButtonClicked(const sf::Vector2i& mousePos) const {
+bool GameWinScreen::isBackToMenuButtonClicked(const sf::Vector2i& mousePos) const {
     return backToMenuButton.getGlobalBounds().contains(static_cast<sf::Vector2f>(mousePos));
 }
 
-bool GameOverScreen::isExitButtonClicked(const sf::Vector2i& mousePos) const {
+bool GameWinScreen::isExitButtonClicked(const sf::Vector2i& mousePos) const {
     return exitButton.getGlobalBounds().contains(static_cast<sf::Vector2f>(mousePos));
+}
+
+void GameWinScreen::setTotalPoints(int points) {
+    totalPointsText.setString("Total Points: " + std::to_string(points));
+    totalPointsText.setPosition(640.f - totalPointsText.getGlobalBounds().width / 2, 300.f);
 }

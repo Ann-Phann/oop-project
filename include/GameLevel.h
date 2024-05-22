@@ -3,68 +3,60 @@
 
 #include <iostream>
 #include <vector>
+#include <array>
+#include <algorithm> // For std::random_shuffle
 #include "GameObject.h"
 #include "Cannon.h"
 #include "Block.h"
 #include "Ball.h"
 #include "Scoreboard.h"
-
-#include <array>
-#include <algorithm> // For std::random_shuffle
 #include "Constants.h"
 
-
+/**
+ * @brief The GameLevel class manages the game levels, including blocks, cannon, balls, and score.
+ *
+ * This class handles the creation, updating, rendering, and destruction of game levels.
+ */
 class GameLevel : public GameObject {
 private:
+    int currentLevel;                // The current game level
+    Cannon cannon;                   // The cannon object
+    sf::Clock clock;                 // Clock for timing shots
+    std::vector<Ball> balls;         // Vector of balls in the game
+    Scoreboard scoreboard;           // Scoreboard object
+    sf::Font fontLevel;              // Font for level text
+    sf::Text levelText;              // Text displaying the current level
+    sf::Text numBallText;            // Text displaying the number of balls
+    bool isMouseEnabled;             // Flag to enable/disable mouse input
 
-    int currentLevel;
+    std::array<std::array<Block*, COLS>, ROWS> blocks; // 2D array of blocks
 
-    Cannon cannon;
-    sf::Clock clock;
-    //std::vector<Block> blocks;
+    // Private functions
+    void updateLevelText();            // Updates the level text
+    void updateNumBallText();          // Updates the number of balls text
+    void updateBlockPositions();       // Updates positions of blocks
+    void reflectBall(Ball& ball);      // Reflects the ball off the blocks
 
-    std::vector<Ball> balls;
-    Scoreboard scoreboard;
-
-    sf::Font fontLevel;
-    sf::Text levelText;
-
-    sf::Text numBallText;
+    // Function for bomb to destroy whole row
+    void rowDestroy(std::array<std::array<Block*, COLS>, ROWS>& blocks, int row);
 
 public:
     GameLevel();
     ~GameLevel();
 
-    std::array<std::array<Block*, COLS>, ROWS> blocks;
+    // Getter and setter
+    int getCurrentLevel() const;         // Gets the current level
+    void setCurrentLevel();              // Sets the current level
+    Cannon& getCannon();                 // Getter for Cannon object
+    int getTotalPoints();                // Gets the total points
 
-
-    //generate blocks for the current level
-    void update(sf::RenderWindow &window) override;
-    void render(sf::RenderTarget& target) const override;
-    void shootCannon();
-
-    void reflectBall(Ball& ball);
-    
-    //update new level
-    void updateLevelText();
-    void updateNumBallText();
-    // getter and setter
-    int getCurrentLevel() const;
-    void setCurrentLevel();
-
-    void createNewRow();
-    void updateBlockPositions();
-    Cannon& getCannon(); // Getter for Cannon object
-
-    //check win lose
-    bool checkLoseCondition(float limitLineY) const;
-    bool checkWinCondition() const;
-
-    //function for bomb to destroy whole row
-    void rowDestroy(std::array<std::array<Block*, COLS>, ROWS>& blocks, int row);
-
-
-
+    // Other methods
+    void update(sf::RenderWindow &window) override; // Updates the game level
+    void render(sf::RenderTarget& target) const override; // Renders the game level
+    void shootCannon();                 // Shoots the cannon
+    void createNewRow();                // Creates a new row of blocks
+    bool checkLoseCondition(float limitLineY) const; // Checks if the game is lost
+    bool checkWinCondition() const;                  // Checks if the game is won
 };
 
 #endif // GAMELEVEL_H

@@ -15,8 +15,9 @@ Scoreboard::Scoreboard() : totalPoints(0) {
     }
 }
 
-void Scoreboard::addScores() {
-    totalPoints += 70 ;
+// Add scores to the total points
+void Scoreboard::addScores(int scoreIncrement) {
+    totalPoints += (100 * scoreIncrement)  ;
 }
 
 void Scoreboard::updatePoints() {
@@ -27,6 +28,7 @@ int Scoreboard::getScores() {
     return totalPoints;
 }
 
+// Render the score text
 void Scoreboard::render(sf::RenderTarget& target) const {
     std::cout << "Rendering point text" << std::endl;
     target.draw(pointText);    
