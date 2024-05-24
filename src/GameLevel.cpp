@@ -259,7 +259,7 @@ bool GameLevel::checkLoseCondition(float limitLineY) const {
 }
 
 bool GameLevel::checkWinCondition() const {
-    return currentLevel >= 20;
+    return currentLevel >= 10;
 }
 
 // Function for bomb to destroy whole row
